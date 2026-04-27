@@ -63,15 +63,24 @@ export default function ScanQR() {
 
                     try {
                         // Extract code from URL if QR contains full URL
-                        const code = decodedText.includes('/scan/')
-                            ? decodedText.split('/scan/').pop()!
-                            : decodedText;
+                        let apiUrl = '';
+                        let codeOrId = decodedText;
+
+                        if (decodedText.includes('/scan/')) {
+                            codeOrId = decodedText.split('/scan/').pop()!;
+                            apiUrl = `/api/assets/code/${codeOrId}`;
+                        } else if (decodedText.includes('/assets/')) {
+                            codeOrId = decodedText.split('/assets/').pop()!;
+                            apiUrl = `/api/assets/${codeOrId}`;
+                        } else {
+                            apiUrl = `/api/assets/code/${decodedText}`;
+                        }
 
                         const xsrfToken = document.cookie.split('; ')
                             .find(row => row.startsWith('XSRF-TOKEN='))
                             ?.split('=')[1];
 
-                        const resp = await fetch(`/api/assets/code/${code}`, {
+                        const resp = await fetch(apiUrl, {
                             headers: { 
                                 Accept: 'application/json', 
                                 'X-Requested-With': 'XMLHttpRequest',
@@ -81,14 +90,14 @@ export default function ScanQR() {
                         });
 
                         if (!resp.ok) {
-                            setError(`Asset tidak ditemukan (${resp.status}). Code: ${code}`);
+                            setError(`Asset tidak ditemukan (${resp.status}). Code: ${codeOrId}`);
                             return;
                         }
 
                         const asset: Asset = await resp.json();
                         setScannedAsset(asset);
                     } catch (e: any) {
-                        setError(`Gagal memuat data asset. (${e.message}) Code: ${code}`);
+                        setError(`Gagal memuat data asset. (${e.message}) Code: ${codeOrId}`);
                     } finally {
                         setLoading(false);
                     }
