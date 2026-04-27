@@ -117,6 +117,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('reports/import', [ReportController::class, 'import'])->name('reports.import');
     Route::get('reports/template', [ReportController::class, 'downloadTemplate'])->name('reports.template');
 
+    // Google Sheets Sync
+    Route::get('google-sheets', [\App\Http\Controllers\GoogleSheetsController::class, 'index'])->name('google-sheets.index');
+    Route::post('google-sheets', [\App\Http\Controllers\GoogleSheetsController::class, 'store'])->name('google-sheets.store');
+    Route::put('google-sheets/{google_sheet_config}', [\App\Http\Controllers\GoogleSheetsController::class, 'update'])->name('google-sheets.update');
+    Route::delete('google-sheets/{google_sheet_config}', [\App\Http\Controllers\GoogleSheetsController::class, 'destroy'])->name('google-sheets.destroy');
+    Route::post('google-sheets/{google_sheet_config}/sync', [\App\Http\Controllers\GoogleSheetsController::class, 'sync'])->name('google-sheets.sync');
+    Route::post('google-sheets/{google_sheet_config}/toggle-auto-sync', [\App\Http\Controllers\GoogleSheetsController::class, 'toggleAutoSync'])->name('google-sheets.toggle-auto-sync');
+    Route::post('google-sheets/test-connection', [\App\Http\Controllers\GoogleSheetsController::class, 'testConnection'])->name('google-sheets.test');
+    Route::post('google-sheets/upload-credentials', [\App\Http\Controllers\GoogleSheetsController::class, 'uploadCredentials'])->name('google-sheets.upload-credentials');
+
     // User Management (Admin only)
     Route::middleware('role:admin')->group(function () {
         Route::get('users', [UserController::class, 'index'])->name('users.index');

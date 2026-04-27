@@ -15,7 +15,7 @@ import {
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, Package, QrCode, TicketCheck, Database, Folder, MapPin, Tag, Wrench, FileSpreadsheet, UserCog } from 'lucide-react';
+import { LayoutGrid, Package, QrCode, TicketCheck, Database, Folder, MapPin, Tag, Wrench, FileSpreadsheet, UserCog, Sheet } from 'lucide-react';
 
 export function AppSidebar() {
     const { auth } = usePage<{ auth: { user: { role: string } } }>().props;
@@ -47,6 +47,11 @@ export function AppSidebar() {
             title: 'Laporan',
             href: '/reports',
             icon: FileSpreadsheet,
+        },
+        {
+            title: 'Google Sheets',
+            href: '/google-sheets',
+            icon: Sheet,
         },
         {
             title: 'Scan QR',
