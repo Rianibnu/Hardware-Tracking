@@ -84,6 +84,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // QR Scanner page
     Route::inertia('scan-qr', 'scan')->name('scan-qr');
+    Route::get('/api-internal/assets/code/{code}', [\App\Http\Controllers\Api\AssetController::class, 'showByCode']);
+    Route::get('/api-internal/assets/{asset}', [\App\Http\Controllers\Api\AssetController::class, 'show']);
 
     // Assets
     Route::resource('assets', AssetController::class);

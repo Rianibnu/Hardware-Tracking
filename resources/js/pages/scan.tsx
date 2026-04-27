@@ -68,12 +68,12 @@ export default function ScanQR() {
 
                         if (decodedText.includes('/scan/')) {
                             codeOrId = decodedText.split('/scan/').pop()!;
-                            apiUrl = `/api/assets/code/${codeOrId}`;
+                            apiUrl = `/api-internal/assets/code/${codeOrId}`;
                         } else if (decodedText.includes('/assets/')) {
                             codeOrId = decodedText.split('/assets/').pop()!;
-                            apiUrl = `/api/assets/${codeOrId}`;
+                            apiUrl = `/api-internal/assets/${codeOrId}`;
                         } else {
-                            apiUrl = `/api/assets/code/${decodedText}`;
+                            apiUrl = `/api-internal/assets/code/${decodedText}`;
                         }
 
                         const xsrfToken = document.cookie.split('; ')
