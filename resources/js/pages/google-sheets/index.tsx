@@ -61,20 +61,44 @@ interface SyncLog {
 
 export default function GoogleSheetsIndex() {
     const { configs, recentLogs, hasCredentials, flash } = usePage<any>().props;
-    const [showAddDialog, setShowAddDialog] = useState(false);
+    const [dialogMode, setDialogMode] = useState<'add' | 'edit'>('add');
+    const [editId, setEditId] = useState<number | null>(null);
+    const [showDialog, setShowDialog] = useState(false);
     const [showCredDialog, setShowCredDialog] = useState(false);
     const [syncing, setSyncing] = useState<number | null>(null);
     const [testing, setTesting] = useState(false);
     const [testResult, setTestResult] = useState<{ success: boolean; title?: string; error?: string } | null>(null);
     const credFileRef = useRef<HTMLInputElement>(null);
 
-    const { data, setData, post, processing, reset } = useForm({
+    const { data, setData, post, put, processing, reset } = useForm({
         name: '',
         spreadsheet_url: '',
         sync_sheets: ['assets', 'tickets'] as string[],
         auto_sync: false,
         sync_interval_minutes: 30,
     });
+
+    const openAddDialog = () => {
+        setDialogMode('add');
+        setEditId(null);
+        reset();
+        setTestResult(null);
+        setShowDialog(true);
+    };
+
+    const openEditDialog = (cfg: Config) => {
+        setDialogMode('edit');
+        setEditId(cfg.id);
+        setData({
+            name: cfg.name,
+            spreadsheet_url: cfg.spreadsheet_url,
+            sync_sheets: cfg.sync_sheets,
+            auto_sync: cfg.auto_sync,
+            sync_interval_minutes: cfg.sync_interval_minutes,
+        });
+        setTestResult(null);
+        setShowDialog(true);
+    };
 
     const handleSync = (configId: number) => {
         setSyncing(configId);
@@ -95,9 +119,15 @@ export default function GoogleSheetsIndex() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post('/google-sheets', {
-            onSuccess: () => { setShowAddDialog(false); reset(); setTestResult(null); },
-        });
+        if (dialogMode === 'add') {
+            post('/google-sheets', {
+                onSuccess: () => { setShowDialog(false); reset(); setTestResult(null); },
+            });
+        } else {
+            put(`/google-sheets/${editId}`, {
+                onSuccess: () => { setShowDialog(false); reset(); setTestResult(null); },
+            });
+        }
     };
 
     const handleTestConnection = async () => {
@@ -174,7 +204,7 @@ export default function GoogleSheetsIndex() {
                             <Settings className="mr-1.5 h-4 w-4" />
                             {hasCredentials ? 'Update' : 'Setup'} Credentials
                         </Button>
-                        <Button size="sm" onClick={() => setShowAddDialog(true)} disabled={!hasCredentials}
+                        <Button size="sm" onClick={() => openAddDialog()} disabled={!hasCredentials}
                             className="bg-emerald-600 hover:bg-emerald-700 text-white">
                             <Plus className="mr-1.5 h-4 w-4" />
                             Tambah Koneksi
@@ -232,7 +262,7 @@ export default function GoogleSheetsIndex() {
                                 <p className="text-sm text-muted-foreground mb-4">
                                     Hubungkan spreadsheet Google Sheets untuk mulai sinkronisasi data.
                                 </p>
-                                <Button size="sm" onClick={() => setShowAddDialog(true)} disabled={!hasCredentials}>
+                                <Button size="sm" onClick={() => openAddDialog()} disabled={!hasCredentials}>
                                     <Plus className="mr-1.5 h-4 w-4" />Tambah Koneksi
                                 </Button>
                             </CardContent>
@@ -263,6 +293,9 @@ export default function GoogleSheetsIndex() {
                                         <Button size="sm" variant="outline" onClick={() => handleToggleAutoSync(cfg.id)}
                                             title={cfg.auto_sync ? 'Nonaktifkan auto-sync' : 'Aktifkan auto-sync'}>
                                             <Power className={`h-4 w-4 ${cfg.auto_sync ? 'text-emerald-600' : 'text-muted-foreground'}`} />
+                                        </Button>
+                                        <Button size="sm" variant="outline" onClick={() => openEditDialog(cfg)} title="Edit konfigurasi">
+                                            <Settings className="h-4 w-4 text-muted-foreground" />
                                         </Button>
                                         <Button size="sm" onClick={() => handleSync(cfg.id)}
                                             disabled={syncing === cfg.id}
@@ -355,12 +388,13 @@ export default function GoogleSheetsIndex() {
                 )}
             </div>
 
-            {/* Add Connection Dialog */}
-            <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+            {/* Add/Edit Connection Dialog */}
+            <Dialog open={showDialog} onOpenChange={setShowDialog}>
                 <DialogContent className="sm:max-w-lg">
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
-                            <Plus className="h-5 w-5 text-emerald-600" />Tambah Koneksi Google Sheets
+                            {dialogMode === 'add' ? <Plus className="h-5 w-5 text-emerald-600" /> : <Settings className="h-5 w-5 text-emerald-600" />}
+                            {dialogMode === 'add' ? 'Tambah Koneksi Google Sheets' : 'Edit Koneksi Google Sheets'}
                         </DialogTitle>
                         <DialogDescription>Hubungkan spreadsheet untuk sinkronisasi data inventaris secara otomatis.</DialogDescription>
                     </DialogHeader>
@@ -373,7 +407,7 @@ export default function GoogleSheetsIndex() {
                         <div className="space-y-1.5">
                             <Label>URL / ID Spreadsheet</Label>
                             <div className="flex gap-2">
-                                <Input placeholder="https://docs.google.com/spreadsheets/d/..." value={data.spreadsheet_url}
+                                <Input placeholder="https://docs.google.com/spreadsheets/d/..." value={data.spreadsheet_url} disabled={dialogMode === 'edit'}
                                     onChange={e => { setData('spreadsheet_url', e.target.value); setTestResult(null); }} required className="flex-1" />
                                 <Button type="button" variant="outline" size="sm" onClick={handleTestConnection}
                                     disabled={testing || !data.spreadsheet_url}>
@@ -424,10 +458,10 @@ export default function GoogleSheetsIndex() {
                             </div>
                         )}
                         <div className="flex justify-end gap-2 pt-2">
-                            <Button type="button" variant="outline" onClick={() => { setShowAddDialog(false); reset(); setTestResult(null); }}>Batal</Button>
+                            <Button type="button" variant="outline" onClick={() => { setShowDialog(false); reset(); setTestResult(null); }}>Batal</Button>
                             <Button type="submit" disabled={processing || data.sync_sheets.length === 0}
                                 className="bg-emerald-600 hover:bg-emerald-700 text-white">
-                                {processing ? <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" />Menyimpan...</> : 'Simpan & Hubungkan'}
+                                {processing ? <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" />Menyimpan...</> : (dialogMode === 'add' ? 'Simpan & Hubungkan' : 'Simpan Perubahan')}
                             </Button>
                         </div>
                     </form>
