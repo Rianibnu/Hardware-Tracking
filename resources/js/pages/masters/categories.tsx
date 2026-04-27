@@ -5,12 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 import { SortableTableHead } from '@/components/sortable-table-head';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, usePage, router } from '@inertiajs/react';
 import { Plus, Pencil, Trash } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import type { Category, PaginatedResponse } from '@/types/inventory';
-import { router } from '@inertiajs/react';
-
 export default function Categories({ categories }: { categories: PaginatedResponse<Category> }) {
     const [openDialog, setOpenDialog] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);

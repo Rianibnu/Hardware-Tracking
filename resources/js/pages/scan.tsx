@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import type { Asset, AssetStatus } from '@/types/inventory';
 import { router } from '@inertiajs/react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+import { Html5Qrcode } from 'html5-qrcode';
 import { AlertTriangle, CheckCircle, QrCode, RefreshCw } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -24,7 +24,7 @@ const STATUS_LABELS: Record<AssetStatus, string> = {
 };
 
 export default function ScanQR() {
-    const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+    const scannerRef = useRef<Html5Qrcode | null>(null);
     const [scanning, setScanning] = useState(true);
     const [scannedAsset, setScannedAsset] = useState<Asset | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -33,51 +33,79 @@ export default function ScanQR() {
     useEffect(() => {
         if (!scanning) return;
 
-        const scanner = new Html5QrcodeScanner(
-            'qr-reader',
-            { fps: 10, qrbox: { width: 280, height: 280 }, aspectRatio: 1.0 },
-            false,
-        );
+        const html5QrCode = new Html5Qrcode('qr-reader');
+        scannerRef.current = html5QrCode;
 
-        scanner.render(
-            async (decodedText) => {
-                scanner.clear();
-                setScanning(false);
-                setLoading(true);
-                setError(null);
+        let isComponentMounted = true;
 
-                try {
-                    // Extract code from URL if QR contains full URL
-                    const code = decodedText.includes('/scan/')
-                        ? decodedText.split('/scan/').pop()!
-                        : decodedText;
-
-                    const resp = await fetch(`/api/assets/code/${code}`, {
-                        headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                        credentials: 'same-origin',
-                    });
-
-                    if (!resp.ok) {
-                        setError('Asset tidak ditemukan. Pastikan QR code valid.');
-                        return;
+        html5QrCode
+            .start(
+                { facingMode: 'environment' }, // Memaksa kamera belakang
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 },
+                    aspectRatio: 1.0,
+                },
+                async (decodedText) => {
+                    if (!isComponentMounted) return;
+                    
+                    // Stop scanning on success
+                    try {
+                        await html5QrCode.stop();
+                        html5QrCode.clear();
+                    } catch (e) {
+                        console.error('Error stopping scanner', e);
                     }
 
-                    const asset: Asset = await resp.json();
-                    setScannedAsset(asset);
-                } catch {
-                    setError('Gagal memuat data asset. Periksa koneksi internet.');
-                } finally {
-                    setLoading(false);
-                }
-            },
-            (err) => {
-                // ignore scan errors (camera not found etc handled by html5-qrcode)
-            },
-        );
+                    setScanning(false);
+                    setLoading(true);
+                    setError(null);
 
-        scannerRef.current = scanner;
+                    try {
+                        // Extract code from URL if QR contains full URL
+                        const code = decodedText.includes('/scan/')
+                            ? decodedText.split('/scan/').pop()!
+                            : decodedText;
+
+                        const resp = await fetch(`/api/assets/code/${code}`, {
+                            headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                            credentials: 'same-origin',
+                        });
+
+                        if (!resp.ok) {
+                            setError('Asset tidak ditemukan. Pastikan QR code valid.');
+                            return;
+                        }
+
+                        const asset: Asset = await resp.json();
+                        setScannedAsset(asset);
+                    } catch {
+                        setError('Gagal memuat data asset. Periksa koneksi internet.');
+                    } finally {
+                        setLoading(false);
+                    }
+                },
+                (err) => {
+                    // ignore scan errors (camera not found etc handled by html5-qrcode)
+                },
+            )
+            .catch((err) => {
+                if (isComponentMounted) {
+                    console.error('Failed to start scanner', err);
+                    setError('Gagal mengakses kamera. Pastikan browser memiliki izin akses kamera.');
+                    setScanning(false);
+                }
+            });
+
         return () => {
-            scanner.clear().catch(() => {});
+            isComponentMounted = false;
+            try {
+                if (html5QrCode.isScanning) {
+                    html5QrCode.stop().then(() => html5QrCode.clear()).catch(() => {});
+                }
+            } catch (e) {
+                // Ignore errors on unmount
+            }
         };
     }, [scanning]);
 
