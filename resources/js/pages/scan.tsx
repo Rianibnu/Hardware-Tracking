@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import type { Asset, AssetStatus } from '@/types/inventory';
 import { router } from '@inertiajs/react';
+import axios from 'axios';
 import { Html5Qrcode } from 'html5-qrcode';
 import { AlertTriangle, CheckCircle, QrCode, RefreshCw } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -67,20 +68,11 @@ export default function ScanQR() {
                             ? decodedText.split('/scan/').pop()!
                             : decodedText;
 
-                        const resp = await fetch(`/api/assets/code/${code}`, {
-                            headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                            credentials: 'same-origin',
-                        });
-
-                        if (!resp.ok) {
-                            setError('Asset tidak ditemukan. Pastikan QR code valid.');
-                            return;
-                        }
-
-                        const asset: Asset = await resp.json();
+                        const resp = await axios.get(`/api/assets/code/${code}`);
+                        const asset: Asset = resp.data;
                         setScannedAsset(asset);
-                    } catch {
-                        setError('Gagal memuat data asset. Periksa koneksi internet.');
+                    } catch (e: any) {
+                        setError(`Gagal memuat data asset. (${e.response?.status || e.message}) Code: ${code}`);
                     } finally {
                         setLoading(false);
                     }
