@@ -15,7 +15,7 @@ import {
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, Package, QrCode, TicketCheck, Database, Folder, MapPin, Tag, Wrench, FileSpreadsheet, UserCog, Sheet } from 'lucide-react';
+import { LayoutGrid, Package, QrCode, TicketCheck, Database, Folder, MapPin, Tag, Wrench, FileSpreadsheet, UserCog, Sheet, ClipboardCheck } from 'lucide-react';
 
 export function AppSidebar() {
     const { auth } = usePage<{ auth: { user: { role: string } } }>().props;
@@ -32,6 +32,11 @@ export function AppSidebar() {
             title: 'Asset Inventory',
             href: '/assets',
             icon: Package,
+        },
+        {
+            title: 'Audit / Opname',
+            href: '/audits',
+            icon: ClipboardCheck,
         },
         {
             title: 'Ticketing',

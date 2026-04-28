@@ -141,6 +141,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('notifications/json', [NotificationController::class, 'index'])->name('notifications.json');
     Route::post('notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+
+    // Audits / Stock Opname
+    Route::get('audits', [\App\Http\Controllers\AuditController::class, 'index'])->name('audits.index');
+    Route::post('audits', [\App\Http\Controllers\AuditController::class, 'store'])->name('audits.store');
+    Route::get('audits/{audit}', [\App\Http\Controllers\AuditController::class, 'show'])->name('audits.show');
+    Route::post('audits/{audit}/scan', [\App\Http\Controllers\AuditController::class, 'scan'])->name('audits.scan');
+    Route::post('audits/{audit}/complete', [\App\Http\Controllers\AuditController::class, 'complete'])->name('audits.complete');
 });
 
 require __DIR__.'/settings.php';
