@@ -121,3 +121,62 @@ export interface PaginatedResponse<T> {
     to: number;
     links: { url: string | null; label: string; active: boolean }[];
 }
+
+// Consumable Stock Management
+export interface Consumable {
+    id: number;
+    name: string;
+    sku: string | null;
+    category_id: number | null;
+    unit: string;
+    current_stock: number;
+    min_stock: number;
+    description: string | null;
+    stock_status: 'safe' | 'low' | 'empty';
+    category?: Category;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface ConsumableTransaction {
+    id: number;
+    consumable_id: number;
+    type: 'in' | 'out';
+    quantity: number;
+    unit_price: number | null;
+    supplier: string | null;
+    request_id: number | null;
+    distributed_to: number | null;
+    location_id: number | null;
+    notes: string | null;
+    created_by: number;
+    consumable?: Consumable;
+    recipient?: User;
+    location?: Location;
+    creator?: User;
+    request?: ConsumableRequest;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface ConsumableRequest {
+    id: number;
+    consumable_id: number;
+    quantity: number;
+    requested_by: number | null;
+    public_requester_name: string | null;
+    public_requester_email: string | null;
+    location_id: number | null;
+    reason: string | null;
+    status: 'pending' | 'approved' | 'rejected' | 'fulfilled';
+    approved_by: number | null;
+    approved_at: string | null;
+    rejected_reason: string | null;
+    consumable?: Consumable;
+    requester?: User;
+    approver?: User;
+    location?: Location;
+    created_at: string;
+    updated_at: string;
+}
+

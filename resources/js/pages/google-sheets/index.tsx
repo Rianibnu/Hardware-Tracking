@@ -26,6 +26,8 @@ const SYNC_SHEET_OPTIONS = [
     { value: 'assets', label: 'Inventaris Asset', icon: '📦' },
     { value: 'tickets', label: 'Laporan Kerusakan', icon: '🎫' },
     { value: 'services', label: 'Servis Pihak 3', icon: '🔧' },
+    { value: 'consumables', label: 'Stok Barang', icon: '📋' },
+    { value: 'audits', label: 'Stock Opname', icon: '🔍' },
     { value: 'summary', label: 'Ringkasan Dashboard', icon: '📊' },
 ];
 

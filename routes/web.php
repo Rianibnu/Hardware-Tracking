@@ -53,6 +53,8 @@ Route::get('/scan/{code}', function (string $code) {
 // Public Asset & Reporting
 Route::get('/public/assets/{code}', [AssetController::class, 'publicShow'])->name('assets.public-show');
 Route::post('/public/assets/{code}/tickets', [TicketController::class, 'publicStore'])->name('tickets.public-store');
+Route::get('/public/consumables', [\App\Http\Controllers\ConsumableController::class, 'publicIndex'])->name('consumables.public-index');
+Route::post('/public/consumables/request', [\App\Http\Controllers\ConsumableController::class, 'publicRequestItem'])->name('consumables.public-request');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
@@ -148,6 +150,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('audits/{audit}', [\App\Http\Controllers\AuditController::class, 'show'])->name('audits.show');
     Route::post('audits/{audit}/scan', [\App\Http\Controllers\AuditController::class, 'scan'])->name('audits.scan');
     Route::post('audits/{audit}/complete', [\App\Http\Controllers\AuditController::class, 'complete'])->name('audits.complete');
+
+    // Consumables / Stok Barang Habis Pakai
+    Route::get('consumables', [\App\Http\Controllers\ConsumableController::class, 'index'])->name('consumables.index');
+    Route::post('consumables', [\App\Http\Controllers\ConsumableController::class, 'store'])->name('consumables.store');
+    Route::get('consumables/{consumable}', [\App\Http\Controllers\ConsumableController::class, 'show'])->name('consumables.show');
+    Route::put('consumables/{consumable}', [\App\Http\Controllers\ConsumableController::class, 'update'])->name('consumables.update');
+    Route::delete('consumables/{consumable}', [\App\Http\Controllers\ConsumableController::class, 'destroy'])->name('consumables.destroy');
+    Route::post('consumables/{consumable}/stock-in', [\App\Http\Controllers\ConsumableController::class, 'stockIn'])->name('consumables.stock-in');
+    Route::post('consumables/{consumable}/distribute', [\App\Http\Controllers\ConsumableController::class, 'distribute'])->name('consumables.distribute');
+    // Consumable Requests
+    Route::post('consumable-requests', [\App\Http\Controllers\ConsumableController::class, 'requestItem'])->name('consumable-requests.store');
+    Route::post('consumable-requests/{consumableRequest}/approve', [\App\Http\Controllers\ConsumableController::class, 'approveRequest'])->name('consumable-requests.approve');
+    Route::post('consumable-requests/{consumableRequest}/reject', [\App\Http\Controllers\ConsumableController::class, 'rejectRequest'])->name('consumable-requests.reject');
+    Route::post('consumable-requests/{consumableRequest}/fulfill', [\App\Http\Controllers\ConsumableController::class, 'fulfillRequest'])->name('consumable-requests.fulfill');
 });
 
 require __DIR__.'/settings.php';

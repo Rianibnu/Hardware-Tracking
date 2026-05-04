@@ -166,7 +166,7 @@ export default function Welcome({ stats, canRegister }: Props) {
                 <meta name="description" content="Dashboard monitoring aset IT secara real-time. Pantau status perangkat, tiket kerusakan, dan aktivitas maintenance." />
             </Head>
 
-            <div className="min-h-screen bg-background text-foreground">
+            <div className="dark min-h-screen bg-background text-foreground">
                 {/* Header */}
                 <header className="border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-50">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">

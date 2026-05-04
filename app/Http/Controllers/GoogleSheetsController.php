@@ -45,7 +45,7 @@ class GoogleSheetsController extends Controller
             'name' => 'required|string|max:255',
             'spreadsheet_url' => 'required|string',
             'sync_sheets' => 'required|array|min:1',
-            'sync_sheets.*' => 'in:assets,tickets,services,summary',
+            'sync_sheets.*' => 'in:assets,tickets,services,consumables,audits,summary',
             'auto_sync' => 'boolean',
             'sync_interval_minutes' => 'integer|min:5|max:1440',
         ]);
@@ -89,7 +89,7 @@ class GoogleSheetsController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'sync_sheets' => 'required|array|min:1',
-            'sync_sheets.*' => 'in:assets,tickets,services,summary',
+            'sync_sheets.*' => 'in:assets,tickets,services,consumables,audits,summary',
             'auto_sync' => 'boolean',
             'sync_interval_minutes' => 'integer|min:5|max:1440',
         ]);

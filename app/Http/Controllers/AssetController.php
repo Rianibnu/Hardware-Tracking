@@ -137,8 +137,11 @@ class AssetController extends Controller
             return redirect()->route('home')->with('error', 'Asset dengan kode ini tidak ditemukan.');
         }
 
+        $consumables = \App\Models\Consumable::select('id', 'name', 'unit', 'current_stock', 'category_id')->with('category')->orderBy('name')->get();
+
         return Inertia::render('assets/public-show', [
             'asset' => $asset,
+            'consumables' => $consumables,
         ]);
     }
 }

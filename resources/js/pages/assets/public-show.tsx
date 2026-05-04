@@ -6,10 +6,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import type { Asset, AssetStatus } from '@/types/inventory';
+import type { Asset, AssetStatus, Consumable } from '@/types/inventory';
 import { useForm, usePage } from '@inertiajs/react';
-import { AlertTriangle, CheckCircle, MapPin, Package, Send } from 'lucide-react';
-import React, { FormEvent } from 'react';
+import { AlertTriangle, CheckCircle, MapPin, Package, Send, Boxes } from 'lucide-react';
+import React, { FormEvent, useState } from 'react';
 
 const STATUS_COLORS: Record<AssetStatus, string> = {
     available: 'bg-emerald-500/15 text-emerald-600 border-emerald-200',
@@ -29,28 +29,50 @@ const STATUS_LABELS: Record<AssetStatus, string> = {
 
 interface Props {
     asset: Asset;
+    consumables: Consumable[];
 }
 
-export default function PublicShow({ asset }: Props) {
+export default function PublicShow({ asset, consumables }: Props) {
     const { flash } = usePage<{ flash: { success?: string; error?: string } }>().props;
-    const { data, setData, post, processing, errors, reset, wasSuccessful } = useForm({
+    
+    const ticketForm = useForm({
         reporter_name: '',
         title: '',
         description: '',
         priority: 'medium',
     });
 
-    const handleSubmit = (e: FormEvent) => {
+    const reqForm = useForm({
+        consumable_id: '',
+        quantity: '1',
+        public_requester_name: '',
+        public_requester_email: '',
+        location_id: asset.location_id ? String(asset.location_id) : '',
+        reason: `Permintaan dari QR Asset: ${asset.name} (${asset.code})`,
+    });
+
+    const submitTicket = (e: FormEvent) => {
         e.preventDefault();
-        post(`/public/assets/${asset.code}/tickets`, {
+        ticketForm.post(`/public/assets/${asset.code}/tickets`, {
             preserveScroll: true,
-            onSuccess: () => reset(),
+            onSuccess: () => ticketForm.reset(),
         });
     };
 
+    const submitReq = (e: FormEvent) => {
+        e.preventDefault();
+        reqForm.post(`/public/consumables/request`, {
+            preserveScroll: true,
+            onSuccess: () => reqForm.reset('consumable_id', 'quantity', 'reason'),
+        });
+    };
+
+    // Find selected consumable to show its unit
+    const selectedConsumable = consumables.find(c => String(c.id) === reqForm.data.consumable_id);
+
     return (
-        <div className="min-h-screen bg-background text-foreground">
-            <div className="mx-auto max-w-4xl space-y-6 p-4 sm:p-6 lg:p-8">
+        <div className="min-h-screen bg-background text-foreground pb-12">
+            <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6 lg:p-8">
                 {/* Header */}
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-3">
@@ -75,7 +97,7 @@ export default function PublicShow({ asset }: Props) {
                 )}
 
                 <div className="grid gap-6 lg:grid-cols-2">
-                    {/* Info */}
+                    {/* Info Column */}
                     <div className="space-y-6">
                         <Card className="border-border/50">
                             <CardHeader>
@@ -105,7 +127,7 @@ export default function PublicShow({ asset }: Props) {
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-base">
                                     <MapPin className="h-4 w-4" />
-                                    Lokasi
+                                    Lokasi Saat Ini
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
@@ -121,81 +143,116 @@ export default function PublicShow({ asset }: Props) {
                         </Card>
                     </div>
 
-                    {/* Report Form */}
-                    <Card className="border-destructive/20 shadow-sm overflow-hidden">
-                        <CardHeader className="bg-destructive/10 border-b border-destructive/20 pb-4">
-                            <CardTitle className="flex items-center gap-2 text-base text-destructive">
-                                <AlertTriangle className="h-5 w-5" />
-                                Laporkan Masalah
-                            </CardTitle>
-                            <CardDescription className="text-foreground/80">
-                                Temukan masalah pada asset ini? Laporkan langsung ke tim IT tanpa perlu login.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="pt-6">
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="reporter_name">Nama Pelapor <span className="text-red-500">*</span></Label>
-                                    <Input
-                                        id="reporter_name"
-                                        placeholder="Masukkan nama Anda"
-                                        value={data.reporter_name}
-                                        onChange={(e) => setData('reporter_name', e.target.value)}
-                                        disabled={processing}
-                                    />
-                                    {errors.reporter_name && <p className="text-sm text-red-500">{errors.reporter_name}</p>}
-                                </div>
+                    {/* Forms Column */}
+                    <div className="space-y-6">
+                        {/* Request Consumable Form */}
+                        <Card className="border-indigo-500/20 shadow-sm overflow-hidden">
+                            <CardHeader className="bg-indigo-500/5 border-b border-indigo-500/10 pb-4">
+                                <CardTitle className="flex items-center gap-2 text-base text-indigo-600 dark:text-indigo-400">
+                                    <Boxes className="h-5 w-5" />
+                                    Minta Barang Habis Pakai
+                                </CardTitle>
+                                <CardDescription className="text-foreground/80">
+                                    Butuh tinta printer, kertas, atau kabel untuk alat ini?
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="pt-6">
+                                <form onSubmit={submitReq} className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="req_name">Nama Anda <span className="text-red-500">*</span></Label>
+                                        <Input id="req_name" required placeholder="Masukkan nama Anda" value={reqForm.data.public_requester_name} onChange={e => reqForm.setData('public_requester_name', e.target.value)} disabled={reqForm.processing} />
+                                    </div>
+                                    
+                                    <div className="space-y-2">
+                                        <Label>Pilih Barang <span className="text-red-500">*</span></Label>
+                                        <Select required value={reqForm.data.consumable_id} onValueChange={v => reqForm.setData('consumable_id', v)} disabled={reqForm.processing}>
+                                            <SelectTrigger><SelectValue placeholder="Pilih barang..." /></SelectTrigger>
+                                            <SelectContent>
+                                                {consumables.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name} ({c.current_stock > 0 ? `${c.current_stock} tersedia` : 'Habis'})</SelectItem>)}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="title">Judul Masalah <span className="text-red-500">*</span></Label>
-                                    <Input
-                                        id="title"
-                                        placeholder="Contoh: AC tidak dingin"
-                                        value={data.title}
-                                        onChange={(e) => setData('title', e.target.value)}
-                                        disabled={processing}
-                                    />
-                                    {errors.title && <p className="text-sm text-red-500">{errors.title}</p>}
-                                </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Jumlah <span className="text-red-500">*</span></Label>
+                                            <div className="relative">
+                                                <Input type="number" min="1" required className="pr-12" value={reqForm.data.quantity} onChange={e => reqForm.setData('quantity', e.target.value)} disabled={reqForm.processing} />
+                                                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                    <span className="text-muted-foreground text-sm">{selectedConsumable?.unit ?? ''}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="description">Deskripsi Detail <span className="text-red-500">*</span></Label>
-                                    <Textarea
-                                        id="description"
-                                        placeholder="Jelaskan masalah secara detail..."
-                                        value={data.description}
-                                        onChange={(e) => setData('description', e.target.value)}
-                                        className="min-h-[100px]"
-                                        disabled={processing}
-                                    />
-                                    {errors.description && <p className="text-sm text-red-500">{errors.description}</p>}
-                                </div>
+                                    <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white" disabled={reqForm.processing}>
+                                        {reqForm.processing ? 'Mengirim...' : (
+                                            <><Send className="mr-2 h-4 w-4" /> Ajukan Permintaan</>
+                                        )}
+                                    </Button>
+                                </form>
+                            </CardContent>
+                        </Card>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="priority">Tingkat Prioritas</Label>
-                                    <Select value={data.priority} onValueChange={(v) => setData('priority', v)} disabled={processing}>
-                                        <SelectTrigger id="priority">
-                                            <SelectValue placeholder="Pilih prioritas" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="low">Rendah (Low)</SelectItem>
-                                            <SelectItem value="medium">Sedang (Medium)</SelectItem>
-                                            <SelectItem value="high">Tinggi (High)</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.priority && <p className="text-sm text-red-500">{errors.priority}</p>}
-                                </div>
+                        {/* Report Form */}
+                        <Card className="border-destructive/20 shadow-sm overflow-hidden">
+                            <CardHeader className="bg-destructive/10 border-b border-destructive/20 pb-4">
+                                <CardTitle className="flex items-center gap-2 text-base text-destructive">
+                                    <AlertTriangle className="h-5 w-5" />
+                                    Laporkan Kerusakan
+                                </CardTitle>
+                                <CardDescription className="text-foreground/80">
+                                    Alat ini tidak berfungsi? Laporkan ke tim IT.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="pt-6">
+                                <form onSubmit={submitTicket} className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="reporter_name">Nama Pelapor <span className="text-red-500">*</span></Label>
+                                        <Input
+                                            id="reporter_name"
+                                            placeholder="Masukkan nama Anda"
+                                            value={ticketForm.data.reporter_name}
+                                            onChange={(e) => ticketForm.setData('reporter_name', e.target.value)}
+                                            disabled={ticketForm.processing}
+                                        />
+                                        {ticketForm.errors.reporter_name && <p className="text-sm text-red-500">{ticketForm.errors.reporter_name}</p>}
+                                    </div>
 
-                                <Button type="submit" variant="destructive" className="w-full" disabled={processing}>
-                                    {processing ? 'Mengirim...' : (
-                                        <>
-                                            <Send className="mr-2 h-4 w-4" /> Kirim Laporan
-                                        </>
-                                    )}
-                                </Button>
-                            </form>
-                        </CardContent>
-                    </Card>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="title">Judul Masalah <span className="text-red-500">*</span></Label>
+                                        <Input
+                                            id="title"
+                                            placeholder="Contoh: AC tidak dingin"
+                                            value={ticketForm.data.title}
+                                            onChange={(e) => ticketForm.setData('title', e.target.value)}
+                                            disabled={ticketForm.processing}
+                                        />
+                                        {ticketForm.errors.title && <p className="text-sm text-red-500">{ticketForm.errors.title}</p>}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="description">Deskripsi Detail <span className="text-red-500">*</span></Label>
+                                        <Textarea
+                                            id="description"
+                                            placeholder="Jelaskan masalah secara detail..."
+                                            value={ticketForm.data.description}
+                                            onChange={(e) => ticketForm.setData('description', e.target.value)}
+                                            className="min-h-[100px]"
+                                            disabled={ticketForm.processing}
+                                        />
+                                        {ticketForm.errors.description && <p className="text-sm text-red-500">{ticketForm.errors.description}</p>}
+                                    </div>
+
+                                    <Button type="submit" variant="destructive" className="w-full" disabled={ticketForm.processing}>
+                                        {ticketForm.processing ? 'Mengirim...' : (
+                                            <><Send className="mr-2 h-4 w-4" /> Kirim Laporan</>
+                                        )}
+                                    </Button>
+                                </form>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
             </div>
         </div>
