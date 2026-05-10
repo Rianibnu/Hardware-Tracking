@@ -38,6 +38,7 @@ class AssetImportTemplate implements FromArray, WithHeadings, WithStyles, WithTi
             'merek',
             'model',
             'serial_number',
+            'ip_address',
             'tahun_beli',
             'lokasi',
             'status',
@@ -55,6 +56,7 @@ class AssetImportTemplate implements FromArray, WithHeadings, WithStyles, WithTi
                 $this->brands[0] ?? 'Dell',
                 'Latitude 5540',
                 'SN-ABC123',
+                '192.168.1.10',
                 2024,
                 $this->locations[0] ?? 'Ruang IT Lt.2',
                 'Tersedia',
@@ -67,6 +69,7 @@ class AssetImportTemplate implements FromArray, WithHeadings, WithStyles, WithTi
                 $this->brands[1] ?? 'HP',
                 'LaserJet Pro M404dn',
                 'SN-XYZ789',
+                '192.168.1.20',
                 2023,
                 $this->locations[1] ?? 'Ruang Admin Lt.1',
                 'Digunakan',
@@ -78,7 +81,7 @@ class AssetImportTemplate implements FromArray, WithHeadings, WithStyles, WithTi
     public function styles(Worksheet $sheet): array
     {
         // Header style
-        $sheet->getStyle('A1:J1')->applyFromArray([
+        $sheet->getStyle('A1:K1')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
@@ -87,7 +90,7 @@ class AssetImportTemplate implements FromArray, WithHeadings, WithStyles, WithTi
         ]);
 
         // Contoh data style
-        $sheet->getStyle('A2:J3')->applyFromArray([
+        $sheet->getStyle('A2:K3')->applyFromArray([
             'font' => ['italic' => true, 'color' => ['rgb' => '6B7280']],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
@@ -100,8 +103,8 @@ class AssetImportTemplate implements FromArray, WithHeadings, WithStyles, WithTi
         $sheet->getComment('B1')->getText()->createTextRun("WAJIB. Nama asset.");
         $sheet->getComment('C1')->getText()->createTextRun("WAJIB. Pilih dari dropdown atau ketik baru (otomatis dibuat).");
         $sheet->getComment('D1')->getText()->createTextRun("Opsional. Pilih dari dropdown atau ketik baru.");
-        $sheet->getComment('H1')->getText()->createTextRun("WAJIB. Pilih dari dropdown atau ketik baru (otomatis dibuat).");
-        $sheet->getComment('I1')->getText()->createTextRun("Pilih: Tersedia, Digunakan, Maintenance, Rusak, Dibuang");
+        $sheet->getComment('I1')->getText()->createTextRun("WAJIB. Pilih dari dropdown atau ketik baru (otomatis dibuat).");
+        $sheet->getComment('J1')->getText()->createTextRun("Pilih: Tersedia, Digunakan, Maintenance, Rusak, Dibuang");
 
         return [];
     }
@@ -194,11 +197,11 @@ class AssetImportTemplate implements FromArray, WithHeadings, WithStyles, WithTi
                     }
                 }
 
-                // Kolom H = Lokasi (dropdown dari master data)
+                // Kolom I = Lokasi (dropdown dari master data)
                 if ($locCount > 0) {
                     $formula = '_MasterData!$B$2:$B$' . ($locCount + 1);
                     for ($row = 2; $row <= $maxRow; $row++) {
-                        $validation = $sheet->getCell('H' . $row)->getDataValidation();
+                        $validation = $sheet->getCell('I' . $row)->getDataValidation();
                         $validation->setType(DataValidation::TYPE_LIST);
                         $validation->setErrorStyle(DataValidation::STYLE_WARNING);
                         $validation->setAllowBlank(true);
@@ -213,10 +216,10 @@ class AssetImportTemplate implements FromArray, WithHeadings, WithStyles, WithTi
                     }
                 }
 
-                // Kolom I = Status (dropdown statis, strict)
+                // Kolom J = Status (dropdown statis, strict)
                 $formula = '_MasterData!$D$2:$D$6';
                 for ($row = 2; $row <= $maxRow; $row++) {
-                    $validation = $sheet->getCell('I' . $row)->getDataValidation();
+                    $validation = $sheet->getCell('J' . $row)->getDataValidation();
                     $validation->setType(DataValidation::TYPE_LIST);
                     $validation->setErrorStyle(DataValidation::STYLE_STOP);
                     $validation->setAllowBlank(true);

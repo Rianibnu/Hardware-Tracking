@@ -338,7 +338,7 @@ class GoogleSheetsService
     {
         $headers = [
             'Kode', 'Nama Asset', 'Kategori', 'Merek', 'Model',
-            'Serial Number', 'Tahun Beli', 'Lokasi', 'Status',
+            'Serial Number', 'IP Address', 'Tahun Beli', 'Lokasi', 'Status',
             'Catatan', 'Dibuat', 'Terakhir Update',
         ];
 
@@ -364,6 +364,7 @@ class GoogleSheetsService
                 $asset->brand?->name ?? '-',
                 $asset->model ?? '-',
                 $asset->serial_number ?? '-',
+                $asset->ip_address ?? '-',
                 $asset->purchase_year ?? '-',
                 $asset->location?->name ?? '-',
                 $statusMap[$asset->status] ?? $asset->status,

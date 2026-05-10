@@ -96,6 +96,7 @@ class AssetsImport implements ToModel, WithHeadingRow, WithValidation, SkipsEmpt
             'brand_id'      => $brand?->id,
             'model'         => trim($row['model'] ?? '') ?: null,
             'serial_number' => trim($row['serial_number'] ?? $row['sn'] ?? '') ?: null,
+            'ip_address'    => trim($row['ip_address'] ?? $row['ip'] ?? '') ?: null,
             'purchase_year' => !empty($row['tahun_beli'] ?? $row['purchase_year'] ?? null)
                 ? (int) ($row['tahun_beli'] ?? $row['purchase_year'])
                 : null,

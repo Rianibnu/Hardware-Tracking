@@ -19,6 +19,7 @@ export default function AssetCreate({ categories, locations, brands }: Props) {
         name: '',
         category_id: '',
         serial_number: '',
+        ip_address: '',
         brand_id: '',
         model: '',
         purchase_year: '',
@@ -159,7 +160,7 @@ export default function AssetCreate({ categories, locations, brands }: Props) {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-3 gap-4">
                             <div className="space-y-1.5">
                                 <Label htmlFor="serial_number">Serial Number</Label>
                                 <Input
@@ -168,6 +169,16 @@ export default function AssetCreate({ categories, locations, brands }: Props) {
                                     onChange={(e) => setData('serial_number', e.target.value)}
                                     placeholder="SN-XXXXX"
                                 />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="ip_address">IP Address</Label>
+                                <Input
+                                    id="ip_address"
+                                    value={data.ip_address}
+                                    onChange={(e) => setData('ip_address', e.target.value)}
+                                    placeholder="192.168.X.X"
+                                />
+                                {errors.ip_address && <p className="text-destructive text-xs">{errors.ip_address}</p>}
                             </div>
                             <div className="space-y-1.5">
                                 <Label htmlFor="status">Status</Label>

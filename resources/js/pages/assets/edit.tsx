@@ -19,6 +19,7 @@ export default function AssetEdit({ asset, categories, locations, brands }: Prop
         name: asset.name,
         category_id: String(asset.category_id),
         serial_number: asset.serial_number ?? '',
+        ip_address: asset.ip_address ?? '',
         brand_id: asset.brand_id ? String(asset.brand_id) : '',
         model: asset.model ?? '',
         purchase_year: asset.purchase_year ? String(asset.purchase_year) : '',
@@ -149,7 +150,7 @@ export default function AssetEdit({ asset, categories, locations, brands }: Prop
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-3 gap-4">
                             <div className="space-y-1.5">
                                 <Label htmlFor="serial_number">Serial Number</Label>
                                 <Input
@@ -157,6 +158,16 @@ export default function AssetEdit({ asset, categories, locations, brands }: Prop
                                     value={data.serial_number}
                                     onChange={(e) => setData('serial_number', e.target.value)}
                                 />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="ip_address">IP Address</Label>
+                                <Input
+                                    id="ip_address"
+                                    value={data.ip_address}
+                                    onChange={(e) => setData('ip_address', e.target.value)}
+                                    placeholder="192.168.X.X"
+                                />
+                                {errors.ip_address && <p className="text-destructive text-xs">{errors.ip_address}</p>}
                             </div>
                             <div className="space-y-1.5">
                                 <Label htmlFor="status">Status</Label>

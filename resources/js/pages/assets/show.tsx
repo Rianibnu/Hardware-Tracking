@@ -367,6 +367,7 @@ export default function AssetShow({ asset, logs, locations, auth, appUrl }: Prop
                                     { label: 'Nama', value: asset.name },
                                     { label: 'Kategori', value: asset.category?.name ?? '—' },
                                     { label: 'Serial Number', value: asset.serial_number ?? '—' },
+                                    { label: 'IP Address', value: asset.ip_address ?? '—' },
                                     { label: 'Brand', value: asset.brand?.name ?? '—' },
                                     { label: 'Model', value: asset.model ?? '—' },
                                     { label: 'Tahun Beli', value: asset.purchase_year?.toString() ?? '—' },

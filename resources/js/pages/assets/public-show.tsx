@@ -113,6 +113,7 @@ export default function PublicShow({ asset, consumables }: Props) {
                                         { label: 'Brand', value: asset.brand?.name ?? '—' },
                                         { label: 'Model', value: asset.model ?? '—' },
                                         { label: 'Tahun Beli', value: asset.purchase_year?.toString() ?? '—' },
+                                        { label: 'IP Address', value: asset.ip_address ?? '—' },
                                     ].map(({ label, value }) => (
                                         <div key={label}>
                                             <dt className="text-muted-foreground font-medium">{label}</dt>
