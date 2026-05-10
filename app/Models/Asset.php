@@ -12,6 +12,7 @@ class Asset extends Model
     use HasRealtimeUpdates;
     protected $fillable = [
         'code', 'name', 'category_id', 'serial_number', 'ip_address',
+        'ram_capacity', 'windows_license', 'office_license', 'pic', 'photo_url',
         'brand_id', 'model', 'purchase_year',
         'status', 'location_id', 'notes',
     ];

@@ -96,12 +96,16 @@ class AssetsImport implements ToModel, WithHeadingRow, WithValidation, SkipsEmpt
             'brand_id'      => $brand?->id,
             'model'         => trim($row['model'] ?? '') ?: null,
             'serial_number' => trim($row['serial_number'] ?? $row['sn'] ?? '') ?: null,
-            'ip_address'    => trim($row['ip_address'] ?? $row['ip'] ?? '') ?: null,
+            'ip_address'    => trim($row['ip_address'] ?? $row['ip'] ?? $row['ip_address_komputer_vnc_static'] ?? '') ?: null,
+            'ram_capacity'  => trim($row['kapasitas_ram'] ?? $row['ram_capacity'] ?? $row['ram'] ?? '') ?: null,
+            'windows_license' => trim($row['lisensi_windows'] ?? $row['licensi_windows'] ?? $row['windows_license'] ?? '') ?: null,
+            'office_license'  => trim($row['lisensi_office'] ?? $row['licensi_office'] ?? $row['office_license'] ?? '') ?: null,
+            'pic'           => trim($row['penanggung_jawab'] ?? $row['pic'] ?? '') ?: null,
             'purchase_year' => !empty($row['tahun_beli'] ?? $row['purchase_year'] ?? null)
                 ? (int) ($row['tahun_beli'] ?? $row['purchase_year'])
                 : null,
             'status'        => $status,
-            'notes'         => trim($row['catatan'] ?? $row['notes'] ?? '') ?: null,
+            'notes'         => trim($row['catatan'] ?? $row['notes'] ?? $row['keterangan'] ?? '') ?: null,
         ]);
     }
 

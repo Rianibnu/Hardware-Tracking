@@ -20,6 +20,10 @@ export default function AssetEdit({ asset, categories, locations, brands }: Prop
         category_id: String(asset.category_id),
         serial_number: asset.serial_number ?? '',
         ip_address: asset.ip_address ?? '',
+        ram_capacity: asset.ram_capacity ?? '',
+        windows_license: asset.windows_license ?? '',
+        office_license: asset.office_license ?? '',
+        pic: asset.pic ?? '',
         brand_id: asset.brand_id ? String(asset.brand_id) : '',
         model: asset.model ?? '',
         purchase_year: asset.purchase_year ? String(asset.purchase_year) : '',
@@ -169,6 +173,48 @@ export default function AssetEdit({ asset, categories, locations, brands }: Prop
                                 />
                                 {errors.ip_address && <p className="text-destructive text-xs">{errors.ip_address}</p>}
                             </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="ram_capacity">Kapasitas RAM</Label>
+                                <Input
+                                    id="ram_capacity"
+                                    value={data.ram_capacity}
+                                    onChange={(e) => setData('ram_capacity', e.target.value)}
+                                    placeholder="Cth: 8 GB"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-4">
+                            <div className="space-y-1.5">
+                                <Label htmlFor="windows_license">Lisensi Windows</Label>
+                                <Input
+                                    id="windows_license"
+                                    value={data.windows_license}
+                                    onChange={(e) => setData('windows_license', e.target.value)}
+                                    placeholder="Cth: Original OEM"
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="office_license">Lisensi Office</Label>
+                                <Input
+                                    id="office_license"
+                                    value={data.office_license}
+                                    onChange={(e) => setData('office_license', e.target.value)}
+                                    placeholder="Cth: License tidak terdeteksi"
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="pic">Penanggung Jawab</Label>
+                                <Input
+                                    id="pic"
+                                    value={data.pic}
+                                    onChange={(e) => setData('pic', e.target.value)}
+                                    placeholder="Nama PIC"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1.5">
                                 <Label htmlFor="status">Status</Label>
                                 <Select value={data.status} onValueChange={(v: any) => setData('status', v)}>

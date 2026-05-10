@@ -39,6 +39,10 @@ class AssetImportTemplate implements FromArray, WithHeadings, WithStyles, WithTi
             'model',
             'serial_number',
             'ip_address',
+            'kapasitas_ram',
+            'lisensi_windows',
+            'lisensi_office',
+            'penanggung_jawab',
             'tahun_beli',
             'lokasi',
             'status',
@@ -51,27 +55,35 @@ class AssetImportTemplate implements FromArray, WithHeadings, WithStyles, WithTi
         return [
             [
                 'AST-001',
-                'Laptop Dell Latitude 5540',
-                $this->categories[0] ?? 'Laptop',
-                $this->brands[0] ?? 'Dell',
-                'Latitude 5540',
-                'SN-ABC123',
-                '192.168.1.10',
+                'Ideacentre i3 - 7100',
+                $this->categories[0] ?? 'Komputer',
+                $this->brands[0] ?? 'Lenovo',
+                'Ideacentre i3-7100',
+                '90HU00MNID',
+                '10.2.26.51',
+                '4 GB',
+                'KMS Key',
+                'License tidak terdeteksi',
+                'Bu Nena',
                 2024,
-                $this->locations[0] ?? 'Ruang IT Lt.2',
+                $this->locations[0] ?? 'CIKAHURIPAN',
                 'Tersedia',
                 'Kondisi baik',
             ],
             [
                 'AST-002',
-                'Printer HP LaserJet Pro',
+                'Xprinter 420b',
                 $this->categories[1] ?? 'Printer',
-                $this->brands[1] ?? 'HP',
-                'LaserJet Pro M404dn',
-                'SN-XYZ789',
-                '192.168.1.20',
+                $this->brands[1] ?? 'Xprinter',
+                'Xprinter 420b',
+                '',
+                '',
+                '',
+                '',
+                '',
+                'Bu Amel',
                 2023,
-                $this->locations[1] ?? 'Ruang Admin Lt.1',
+                $this->locations[1] ?? 'LAINNYA',
                 'Digunakan',
                 '',
             ],
@@ -80,8 +92,8 @@ class AssetImportTemplate implements FromArray, WithHeadings, WithStyles, WithTi
 
     public function styles(Worksheet $sheet): array
     {
-        // Header style
-        $sheet->getStyle('A1:K1')->applyFromArray([
+        // Header style — kolom A sampai O (15 kolom)
+        $sheet->getStyle('A1:O1')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
@@ -90,7 +102,7 @@ class AssetImportTemplate implements FromArray, WithHeadings, WithStyles, WithTi
         ]);
 
         // Contoh data style
-        $sheet->getStyle('A2:K3')->applyFromArray([
+        $sheet->getStyle('A2:O3')->applyFromArray([
             'font' => ['italic' => true, 'color' => ['rgb' => '6B7280']],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
@@ -100,11 +112,20 @@ class AssetImportTemplate implements FromArray, WithHeadings, WithStyles, WithTi
 
         // Komentar petunjuk
         $sheet->getComment('A1')->getText()->createTextRun("Opsional. Kosongkan untuk auto-generate kode.");
-        $sheet->getComment('B1')->getText()->createTextRun("WAJIB. Nama asset.");
+        $sheet->getComment('B1')->getText()->createTextRun("WAJIB. Nama asset/perangkat.");
         $sheet->getComment('C1')->getText()->createTextRun("WAJIB. Pilih dari dropdown atau ketik baru (otomatis dibuat).");
         $sheet->getComment('D1')->getText()->createTextRun("Opsional. Pilih dari dropdown atau ketik baru.");
-        $sheet->getComment('I1')->getText()->createTextRun("WAJIB. Pilih dari dropdown atau ketik baru (otomatis dibuat).");
-        $sheet->getComment('J1')->getText()->createTextRun("Pilih: Tersedia, Digunakan, Maintenance, Rusak, Dibuang");
+        $sheet->getComment('E1')->getText()->createTextRun("Opsional. Tipe/model perangkat.");
+        $sheet->getComment('F1')->getText()->createTextRun("Opsional. Serial Number perangkat.");
+        $sheet->getComment('G1')->getText()->createTextRun("Opsional. IP Address perangkat (static).");
+        $sheet->getComment('H1')->getText()->createTextRun("Opsional. Kapasitas RAM, cth: 4 GB, 8 GB, 12GB.");
+        $sheet->getComment('I1')->getText()->createTextRun("Opsional. Status lisensi Windows, cth: Original, KMS Key.");
+        $sheet->getComment('J1')->getText()->createTextRun("Opsional. Status lisensi Office.");
+        $sheet->getComment('K1')->getText()->createTextRun("Opsional. Nama PIC/penanggung jawab perangkat.");
+        $sheet->getComment('L1')->getText()->createTextRun("Opsional. Tahun pembelian.");
+        $sheet->getComment('M1')->getText()->createTextRun("WAJIB. Pilih dari dropdown atau ketik baru (otomatis dibuat).");
+        $sheet->getComment('N1')->getText()->createTextRun("Pilih: Tersedia, Digunakan, Maintenance, Rusak, Dibuang");
+        $sheet->getComment('O1')->getText()->createTextRun("Opsional. Catatan/keterangan tambahan.");
 
         return [];
     }
@@ -197,11 +218,11 @@ class AssetImportTemplate implements FromArray, WithHeadings, WithStyles, WithTi
                     }
                 }
 
-                // Kolom I = Lokasi (dropdown dari master data)
+                // Kolom M = Lokasi (dropdown dari master data)
                 if ($locCount > 0) {
                     $formula = '_MasterData!$B$2:$B$' . ($locCount + 1);
                     for ($row = 2; $row <= $maxRow; $row++) {
-                        $validation = $sheet->getCell('I' . $row)->getDataValidation();
+                        $validation = $sheet->getCell('M' . $row)->getDataValidation();
                         $validation->setType(DataValidation::TYPE_LIST);
                         $validation->setErrorStyle(DataValidation::STYLE_WARNING);
                         $validation->setAllowBlank(true);
@@ -216,10 +237,10 @@ class AssetImportTemplate implements FromArray, WithHeadings, WithStyles, WithTi
                     }
                 }
 
-                // Kolom J = Status (dropdown statis, strict)
+                // Kolom N = Status (dropdown statis, strict)
                 $formula = '_MasterData!$D$2:$D$6';
                 for ($row = 2; $row <= $maxRow; $row++) {
-                    $validation = $sheet->getCell('J' . $row)->getDataValidation();
+                    $validation = $sheet->getCell('N' . $row)->getDataValidation();
                     $validation->setType(DataValidation::TYPE_LIST);
                     $validation->setErrorStyle(DataValidation::STYLE_STOP);
                     $validation->setAllowBlank(true);

@@ -368,9 +368,13 @@ export default function AssetShow({ asset, logs, locations, auth, appUrl }: Prop
                                     { label: 'Kategori', value: asset.category?.name ?? '—' },
                                     { label: 'Serial Number', value: asset.serial_number ?? '—' },
                                     { label: 'IP Address', value: asset.ip_address ?? '—' },
+                                    { label: 'Kapasitas RAM', value: asset.ram_capacity ?? '—' },
                                     { label: 'Brand', value: asset.brand?.name ?? '—' },
                                     { label: 'Model', value: asset.model ?? '—' },
                                     { label: 'Tahun Beli', value: asset.purchase_year?.toString() ?? '—' },
+                                    { label: 'Lisensi Windows', value: asset.windows_license ?? '—' },
+                                    { label: 'Lisensi Office', value: asset.office_license ?? '—' },
+                                    { label: 'Penanggung Jawab', value: asset.pic ?? '—' },
                                     { label: 'Status', value: activeService ? 'Sedang Diservis (Pihak Ke-3)' : STATUS_LABELS[asset.status] },
                                 ].map(({ label, value }) => (
                                     <div key={label}>
