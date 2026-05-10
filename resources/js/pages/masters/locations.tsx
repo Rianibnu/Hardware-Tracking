@@ -1,20 +1,24 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 import { SortableTableHead } from '@/components/sortable-table-head';
 import { Head, useForm } from '@inertiajs/react';
-import { Plus, Pencil, Trash } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { Plus, Pencil, Trash, Upload, FileSpreadsheet, CheckCircle2 } from 'lucide-react';
+import { useState, useRef } from 'react';
 import type { Location, PaginatedResponse } from '@/types/inventory';
 import { usePage, router } from '@inertiajs/react';
 
 export default function Locations({ locations }: { locations: PaginatedResponse<Location> }) {
     const [openDialog, setOpenDialog] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
+    const [importing, setImporting] = useState(false);
+    const [importFile, setImportFile] = useState<File | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
+    const { flash } = usePage<{ flash: { success?: string; error?: string } }>().props;
     const { url } = usePage();
     const params = new URLSearchParams(url.split('?')[1]);
     const sort = { field: params.get('sort') || 'name', dir: (params.get('dir') || 'asc') as 'asc' | 'desc' };
@@ -66,6 +70,21 @@ export default function Locations({ locations }: { locations: PaginatedResponse<
         if (confirm('Yakin ingin menghapus lokasi ini?')) {
             destroy(`/locations/${id}`);
         }
+    };
+
+    const handleImport = () => {
+        if (!importFile) return;
+        setImporting(true);
+        const fd = new FormData();
+        fd.append('file', importFile);
+        router.post('/locations/import', fd as any, {
+            forceFormData: true,
+            onFinish: () => {
+                setImporting(false);
+                setImportFile(null);
+                if (fileInputRef.current) fileInputRef.current.value = '';
+            },
+        });
     };
 
     return (
@@ -139,6 +158,54 @@ export default function Locations({ locations }: { locations: PaginatedResponse<
                         </DialogContent>
                     </Dialog>
                 </div>
+
+                {/* Flash Messages */}
+                {flash?.success && (
+                    <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400">
+                        <CheckCircle2 className="h-4 w-4 shrink-0" />
+                        {flash.success}
+                    </div>
+                )}
+
+                {/* Import Section */}
+                <Card className="border-blue-200 dark:border-blue-800">
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-base flex items-center gap-2">
+                            <Upload className="h-4 w-4" />
+                            Import Data Lokasi dari Excel
+                        </CardTitle>
+                        <CardDescription>Upload file Excel (.xlsx) untuk menambahkan lokasi secara massal. Lokasi dengan nama yang sudah ada akan dilewati.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex flex-wrap items-center gap-3">
+                            <a href="/locations/template" className="inline-flex items-center gap-1.5 rounded-md border px-3 py-2 text-sm font-medium transition-colors hover:bg-muted">
+                                <FileSpreadsheet className="h-4 w-4 text-blue-600" />
+                                Download Template
+                            </a>
+                            <div className="flex items-center gap-2">
+                                <Input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept=".xlsx,.xls,.csv"
+                                    className="max-w-xs text-sm"
+                                    onChange={(e) => setImportFile(e.target.files?.[0] ?? null)}
+                                />
+                                <Button
+                                    size="sm"
+                                    disabled={!importFile || importing}
+                                    onClick={handleImport}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                >
+                                    {importing ? (
+                                        <><span className="animate-spin mr-1">⏳</span> Mengimpor...</>
+                                    ) : (
+                                        <><Upload className="mr-1 h-4 w-4" /> Import</>
+                                    )}
+                                </Button>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
 
                 <Card>
                     <CardContent className="p-0">

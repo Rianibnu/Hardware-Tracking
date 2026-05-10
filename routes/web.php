@@ -96,6 +96,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Master Data Routes
     Route::resource('categories', CategoryController::class)->except(['create', 'show', 'edit']);
+    Route::get('locations/template', [LocationController::class, 'downloadTemplate'])->name('locations.template');
+    Route::post('locations/import', [LocationController::class, 'import'])->name('locations.import');
     Route::resource('locations', LocationController::class)->except(['create', 'show', 'edit']);
     Route::resource('brands', BrandController::class)->except(['create', 'show', 'edit']);
 

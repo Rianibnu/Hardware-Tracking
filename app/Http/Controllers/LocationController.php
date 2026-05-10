@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Location;
+use App\Exports\LocationImportTemplate;
+use App\Imports\LocationsImport;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LocationController extends Controller
 {
@@ -50,5 +53,34 @@ class LocationController extends Controller
     {
         $location->delete();
         return back()->with('success', 'Lokasi berhasil dihapus');
+    }
+
+    public function downloadTemplate()
+    {
+        return Excel::download(new LocationImportTemplate(), 'template_import_lokasi.xlsx');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
+        $import = new LocationsImport();
+        Excel::import($import, $request->file('file'));
+
+        $imported = $import->getImportedCount();
+        $skipped  = $import->getSkippedCount();
+        $failures = $import->failures();
+
+        $message = "Berhasil mengimpor {$imported} data lokasi.";
+        if ($skipped > 0) {
+            $message .= " {$skipped} baris dilewati (duplikat/tidak lengkap).";
+        }
+        if ($failures->count() > 0) {
+            $message .= " {$failures->count()} baris gagal validasi.";
+        }
+
+        return back()->with('success', $message);
     }
 }
