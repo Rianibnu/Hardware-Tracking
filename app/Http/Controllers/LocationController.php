@@ -27,6 +27,7 @@ class LocationController extends Controller
             'building' => 'nullable|string|max:255',
             'floor' => 'nullable|string|max:255',
             'room' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:1000',
         ]);
         Location::create($data);
         return back()->with('success', 'Lokasi berhasil ditambahkan');
@@ -39,6 +40,7 @@ class LocationController extends Controller
             'building' => 'nullable|string|max:255',
             'floor' => 'nullable|string|max:255',
             'room' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:1000',
         ]);
         $location->update($data);
         return back()->with('success', 'Lokasi berhasil diperbarui');

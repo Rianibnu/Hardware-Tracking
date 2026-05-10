@@ -28,6 +28,7 @@ export default function Locations({ locations }: { locations: PaginatedResponse<
         building: '',
         floor: '',
         room: '',
+        description: '',
     });
 
     const openEdit = (location: Location) => {
@@ -36,6 +37,7 @@ export default function Locations({ locations }: { locations: PaginatedResponse<
             building: location.building ?? '',
             floor: location.floor ?? '',
             room: location.room ?? '',
+            description: location.description ?? '',
         });
         setEditingId(location.id);
         setOpenDialog(true);
@@ -122,6 +124,14 @@ export default function Locations({ locations }: { locations: PaginatedResponse<
                                         placeholder="Cth: 301"
                                     />
                                 </div>
+                                <div className="space-y-2">
+                                    <Label>Keterangan</Label>
+                                    <Input
+                                        value={data.description}
+                                        onChange={e => setData('description', e.target.value)}
+                                        placeholder="Cth: Ruangan di sebelah pantri lantai 2"
+                                    />
+                                </div>
                                 <div className="flex justify-end pt-4">
                                     <Button type="submit" disabled={processing}>Simpan</Button>
                                 </div>
@@ -141,13 +151,14 @@ export default function Locations({ locations }: { locations: PaginatedResponse<
                                         <SortableTableHead field="building" label="Gedung" currentSort={sort.field} currentDir={sort.dir} onSort={handleSort} />
                                         <SortableTableHead field="floor" label="Lantai" currentSort={sort.field} currentDir={sort.dir} onSort={handleSort} />
                                         <SortableTableHead field="room" label="Ruang" currentSort={sort.field} currentDir={sort.dir} onSort={handleSort} />
+                                        <SortableTableHead field="description" label="Keterangan" currentSort={sort.field} currentDir={sort.dir} onSort={handleSort} />
                                         <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground w-[100px]">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody className="[&_tr:last-child]:border-0">
                                     {locations.data.length === 0 ? (
                                         <tr>
-                                            <td colSpan={6} className="p-4 text-center text-muted-foreground">
+                                            <td colSpan={7} className="p-4 text-center text-muted-foreground">
                                                 Tidak ada data lokasi.
                                             </td>
                                         </tr>
@@ -159,6 +170,7 @@ export default function Locations({ locations }: { locations: PaginatedResponse<
                                                 <td className="p-4 align-middle">{location.building || '-'}</td>
                                                 <td className="p-4 align-middle">{location.floor || '-'}</td>
                                                 <td className="p-4 align-middle">{location.room || '-'}</td>
+                                                <td className="p-4 align-middle">{location.description || '-'}</td>
                                                 <td className="p-4 align-middle text-right">
                                                     <div className="flex justify-end gap-2">
                                                         <Button variant="ghost" size="icon" onClick={() => openEdit(location)}>

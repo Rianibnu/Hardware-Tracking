@@ -25,6 +25,7 @@ export interface Location {
     building: string | null;
     floor: string | null;
     room: string | null;
+    description: string | null;
 }
 
 export type AssetStatus = 'available' | 'in_use' | 'maintenance' | 'broken' | 'disposed';

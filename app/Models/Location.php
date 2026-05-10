@@ -9,7 +9,7 @@ use App\Traits\HasRealtimeUpdates;
 class Location extends Model
 {
     use HasRealtimeUpdates;
-    protected $fillable = ['name', 'building', 'floor', 'room'];
+    protected $fillable = ['name', 'building', 'floor', 'room', 'description'];
 
     public function assets(): HasMany
     {

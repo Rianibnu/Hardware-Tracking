@@ -140,6 +140,11 @@ export default function PublicShow({ asset, consumables }: Props) {
                                         {asset.location.room && ` · ${asset.location.room}`}
                                     </p>
                                 )}
+                                {asset.location?.description && (
+                                    <p className="text-muted-foreground text-sm mt-1 italic">
+                                        "{asset.location.description}"
+                                    </p>
+                                )}
                             </CardContent>
                         </Card>
                     </div>
