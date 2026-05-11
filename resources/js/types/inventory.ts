@@ -44,18 +44,37 @@ export interface Asset {
     office_license: string | null;
     pic: string | null;
     photo_url: string | null;
+    remote_access_type: 'vnc' | 'rustdesk' | 'anydesk' | null;
+    remote_access_id: string | null;
     brand_id: number | null;
     model: string | null;
     purchase_year: number | null;
     status: AssetStatus;
     location_id: number;
     notes: string | null;
+    last_heartbeat: string | null;
+    agent_data: AgentData | null;
     category?: Category;
     brand?: Brand;
     location?: Location;
     tickets?: Ticket[];
     created_at: string;
     updated_at: string;
+}
+
+export interface AgentData {
+    hostname?: string;
+    os?: string;
+    cpu?: string;
+    ram_total?: string;
+    ram_used?: string;
+    disk_total?: string;
+    disk_used?: string;
+    uptime?: string;
+    mac_address?: string;
+    logged_in_user?: string;
+    agent_version?: string;
+    collected_at?: string;
 }
 
 export interface Ticket {

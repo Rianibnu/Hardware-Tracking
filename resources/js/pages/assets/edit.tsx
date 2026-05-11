@@ -24,6 +24,8 @@ export default function AssetEdit({ asset, categories, locations, brands }: Prop
         windows_license: asset.windows_license ?? '',
         office_license: asset.office_license ?? '',
         pic: asset.pic ?? '',
+        remote_access_type: asset.remote_access_type ?? '',
+        remote_access_id: asset.remote_access_id ?? '',
         brand_id: asset.brand_id ? String(asset.brand_id) : '',
         model: asset.model ?? '',
         purchase_year: asset.purchase_year ? String(asset.purchase_year) : '',
@@ -211,6 +213,33 @@ export default function AssetEdit({ asset, categories, locations, brands }: Prop
                                     onChange={(e) => setData('pic', e.target.value)}
                                     placeholder="Nama PIC"
                                 />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <Label htmlFor="remote_access_type">Remote Access Type</Label>
+                                <Select value={data.remote_access_type || 'none'} onValueChange={(v) => setData('remote_access_type', v === 'none' ? '' : v)}>
+                                    <SelectTrigger id="remote_access_type">
+                                        <SelectValue placeholder="Pilih tipe" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">-- Tidak ada --</SelectItem>
+                                        <SelectItem value="vnc">VNC (RealVNC)</SelectItem>
+                                        <SelectItem value="rustdesk">RustDesk</SelectItem>
+                                        <SelectItem value="anydesk">AnyDesk</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="remote_access_id">Remote Access ID</Label>
+                                <Input
+                                    id="remote_access_id"
+                                    value={data.remote_access_id}
+                                    onChange={(e) => setData('remote_access_id', e.target.value)}
+                                    placeholder="Cth: 192.168.1.10 atau ID RustDesk"
+                                />
+                                <p className="text-muted-foreground text-xs">IP/hostname untuk VNC, atau device ID untuk RustDesk/AnyDesk</p>
                             </div>
                         </div>
 

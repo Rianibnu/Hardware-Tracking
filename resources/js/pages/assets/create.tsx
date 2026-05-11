@@ -24,6 +24,8 @@ export default function AssetCreate({ categories, locations, brands }: Props) {
         windows_license: '',
         office_license: '',
         pic: '',
+        remote_access_type: '',
+        remote_access_id: '',
         brand_id: '',
         model: '',
         purchase_year: '',
@@ -222,6 +224,25 @@ export default function AssetCreate({ categories, locations, brands }: Props) {
                                     onChange={(e) => setData('pic', e.target.value)}
                                     placeholder="Nama PIC"
                                 />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <Label htmlFor="remote_access_type">Remote Access Type</Label>
+                                <Select value={data.remote_access_type || 'none'} onValueChange={(v) => setData('remote_access_type', v === 'none' ? '' : v)}>
+                                    <SelectTrigger id="remote_access_type"><SelectValue placeholder="Pilih tipe" /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">-- Tidak ada --</SelectItem>
+                                        <SelectItem value="vnc">VNC (RealVNC)</SelectItem>
+                                        <SelectItem value="rustdesk">RustDesk</SelectItem>
+                                        <SelectItem value="anydesk">AnyDesk</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="remote_access_id">Remote Access ID</Label>
+                                <Input id="remote_access_id" value={data.remote_access_id} onChange={(e) => setData('remote_access_id', e.target.value)} placeholder="IP atau Device ID" />
                             </div>
                         </div>
 

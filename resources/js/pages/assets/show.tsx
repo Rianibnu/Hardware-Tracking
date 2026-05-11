@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { Separator } from '@/components/ui/separator';
 import type { Asset, AssetLog, AssetStatus, PaginatedResponse, Ticket } from '@/types/inventory';
 import { router } from '@inertiajs/react';
-import { AlertTriangle, ArrowLeft, ArrowRightLeft, CheckCircle, Clock, Download, Edit, ExternalLink, FileText, History, MapPin, Package, Printer, RefreshCw, Tag, Trash2, Users, Wrench } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, ArrowRightLeft, CheckCircle, Clock, Cpu, Download, Edit, ExternalLink, FileText, HardDrive, History, MapPin, Monitor, Package, Printer, RefreshCw, Tag, Trash2, Users, Wifi, Wrench } from 'lucide-react';
 import QRCodeModule from 'react-qr-code';
 const QRCode = typeof QRCodeModule === 'function' ? QRCodeModule : (QRCodeModule as any).default;
 
@@ -230,6 +230,20 @@ export default function AssetShow({ asset, logs, locations, auth, appUrl }: Prop
                         <AlertTriangle className="mr-2 h-4 w-4" />
                         <span className="md:inline">Laporkan</span>
                     </Button>
+                    {asset.remote_access_type && asset.remote_access_id && (
+                        <Button
+                            variant="outline"
+                            className="flex-1 md:flex-none border-purple-300 text-purple-600 hover:bg-purple-50"
+                            onClick={() => {
+                                const urls: Record<string, string> = { vnc: `vnc://${asset.remote_access_id}`, rustdesk: `rustdesk://${asset.remote_access_id}`, anydesk: `anydesk:${asset.remote_access_id}` };
+                                const url = urls[asset.remote_access_type!];
+                                if (url) window.open(url, '_blank');
+                            }}
+                        >
+                            <Monitor className="mr-2 h-4 w-4" />
+                            Remote Access
+                        </Button>
+                    )}
                     {isAdmin && (
                         <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
                             <DialogTrigger asChild>
@@ -376,6 +390,7 @@ export default function AssetShow({ asset, logs, locations, auth, appUrl }: Prop
                                     { label: 'Lisensi Office', value: asset.office_license ?? '—' },
                                     { label: 'Penanggung Jawab', value: asset.pic ?? '—' },
                                     { label: 'Status', value: activeService ? 'Sedang Diservis (Pihak Ke-3)' : STATUS_LABELS[asset.status] },
+                                    { label: 'Remote Access', value: asset.remote_access_type ? `${asset.remote_access_type.toUpperCase()} — ${asset.remote_access_id}` : '—' },
                                 ].map(({ label, value }) => (
                                     <div key={label}>
                                         <dt className="text-muted-foreground font-medium">{label}</dt>
@@ -395,6 +410,35 @@ export default function AssetShow({ asset, logs, locations, auth, appUrl }: Prop
                             )}
                         </CardContent>
                     </Card>
+
+                    {/* Agent Data */}
+                    {asset.agent_data && (
+                        <Card className="border-purple-200/50 bg-purple-50/10 dark:border-purple-900/30">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2 text-base">
+                                    <Cpu className="h-4 w-4 text-purple-500" />
+                                    Data Agent (Auto-Collected)
+                                    {asset.last_heartbeat && (
+                                        <span className="text-xs text-muted-foreground font-normal ml-auto">
+                                            {new Date(asset.last_heartbeat).toLocaleString('id-ID')}
+                                        </span>
+                                    )}
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <dl className="grid grid-cols-2 gap-3 text-sm">
+                                    {asset.agent_data.hostname && <div><dt className="text-muted-foreground text-xs">Hostname</dt><dd className="font-medium text-xs">{asset.agent_data.hostname}</dd></div>}
+                                    {asset.agent_data.os && <div><dt className="text-muted-foreground text-xs">OS</dt><dd className="font-medium text-xs truncate" title={asset.agent_data.os}>{asset.agent_data.os}</dd></div>}
+                                    {asset.agent_data.cpu && <div><dt className="text-muted-foreground text-xs">CPU</dt><dd className="font-medium text-xs truncate" title={asset.agent_data.cpu}>{asset.agent_data.cpu}</dd></div>}
+                                    {asset.agent_data.ram_total && <div><dt className="text-muted-foreground text-xs">RAM</dt><dd className="font-medium text-xs">{asset.agent_data.ram_used} / {asset.agent_data.ram_total}</dd></div>}
+                                    {asset.agent_data.disk_total && <div><dt className="text-muted-foreground text-xs">Disk</dt><dd className="font-medium text-xs">{asset.agent_data.disk_used} / {asset.agent_data.disk_total}</dd></div>}
+                                    {asset.agent_data.uptime && <div><dt className="text-muted-foreground text-xs">Uptime</dt><dd className="font-medium text-xs">{asset.agent_data.uptime}</dd></div>}
+                                    {asset.agent_data.mac_address && <div><dt className="text-muted-foreground text-xs">MAC</dt><dd className="font-medium text-xs">{asset.agent_data.mac_address}</dd></div>}
+                                    {asset.agent_data.logged_in_user && <div><dt className="text-muted-foreground text-xs">User Login</dt><dd className="font-medium text-xs">{asset.agent_data.logged_in_user}</dd></div>}
+                                </dl>
+                            </CardContent>
+                        </Card>
+                    )}
 
                     {/* Location */}
                     <Card className="border-border/50">

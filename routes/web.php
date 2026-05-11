@@ -166,6 +166,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('consumable-requests/{consumableRequest}/approve', [\App\Http\Controllers\ConsumableController::class, 'approveRequest'])->name('consumable-requests.approve');
     Route::post('consumable-requests/{consumableRequest}/reject', [\App\Http\Controllers\ConsumableController::class, 'rejectRequest'])->name('consumable-requests.reject');
     Route::post('consumable-requests/{consumableRequest}/fulfill', [\App\Http\Controllers\ConsumableController::class, 'fulfillRequest'])->name('consumable-requests.fulfill');
+
+    // Network Monitor
+    Route::get('network-monitor', [\App\Http\Controllers\NetworkMonitorController::class, 'index'])->name('network-monitor.index');
+    Route::post('network-monitor/ping/{asset}', [\App\Http\Controllers\NetworkMonitorController::class, 'pingAsset'])->name('network-monitor.ping');
+    Route::post('network-monitor/ping-all', [\App\Http\Controllers\NetworkMonitorController::class, 'pingAll'])->name('network-monitor.ping-all');
+
+    // Agent Auto-Register (admin only)
+    Route::post('api/agent/auto-register', [\App\Http\Controllers\Api\AgentController::class, 'autoRegister'])->name('agent.auto-register')->middleware('role:admin');
 });
 
 require __DIR__.'/settings.php';

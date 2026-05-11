@@ -1,10 +1,14 @@
 <?php
 
+use App\Http\Controllers\Api\AgentController;
 use App\Http\Controllers\Api\AssetController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ReferenceController;
 use App\Http\Controllers\Api\TicketController;
 use Illuminate\Support\Facades\Route;
+
+// ─── Agent Heartbeat (no auth - agents self-identify) ────────────────────────
+Route::post('/agent/heartbeat', [AgentController::class, 'heartbeat']);
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
 Route::post('/login', [AuthController::class, 'login']);

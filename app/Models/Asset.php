@@ -13,12 +13,16 @@ class Asset extends Model
     protected $fillable = [
         'code', 'name', 'category_id', 'serial_number', 'ip_address',
         'ram_capacity', 'windows_license', 'office_license', 'pic', 'photo_url',
+        'remote_access_type', 'remote_access_id',
         'brand_id', 'model', 'purchase_year',
         'status', 'location_id', 'notes',
+        'last_heartbeat', 'agent_data',
     ];
 
     protected $casts = [
-        'purchase_year' => 'integer',
+        'purchase_year'  => 'integer',
+        'last_heartbeat' => 'datetime',
+        'agent_data'     => 'array',
     ];
 
     public function category(): BelongsTo
