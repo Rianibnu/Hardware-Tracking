@@ -1,8 +1,8 @@
 <# 
-    ╔══════════════════════════════════════════════════════════════╗
-    ║         RIR STUDIO - Monitoring Agent v1.0                  ║
-    ║         Auto Hardware Collector & Heartbeat                 ║
-    ╚══════════════════════════════════════════════════════════════╝
+    ==============================================================
+             RIR STUDIO - Monitoring Agent v1.0                  
+             Auto Hardware Collector & Heartbeat                 
+    ==============================================================
     
     SETUP:
     1. Edit $ServerUrl dengan URL server monitoring Anda
@@ -173,9 +173,9 @@ function Send-Heartbeat {
         $response = Invoke-RestMethod -Uri $url -Method Post -Body $json -ContentType "application/json" -TimeoutSec 30
         
         if ($response.status -eq "ok") {
-            Write-AgentLog "✅ Heartbeat diterima! Asset: $($response.name) ($($response.code))" "SUCCESS"
+            Write-AgentLog "[OK] Heartbeat diterima! Asset: $($response.name) ($($response.code))" "SUCCESS"
         } elseif ($response.status -eq "unregistered") {
-            Write-AgentLog "⚠️ Device belum terdaftar di sistem. Silakan tambahkan asset di dashboard." "WARNING"
+            Write-AgentLog "[WARN] Device belum terdaftar di sistem. Silakan tambahkan asset di dashboard." "WARNING"
         } else {
             Write-AgentLog "Response: $($response | ConvertTo-Json -Compress)" "INFO"
         }
@@ -183,7 +183,7 @@ function Send-Heartbeat {
         return $response
     } catch {
         $errorMsg = $_.Exception.Message
-        Write-AgentLog "❌ Gagal mengirim heartbeat: $errorMsg" "ERROR"
+        Write-AgentLog "[FAILED] Gagal mengirim heartbeat: $errorMsg" "ERROR"
         
         if ($_.Exception.Response) {
             $statusCode = $_.Exception.Response.StatusCode.value__
@@ -200,10 +200,10 @@ function Send-Heartbeat {
 
 Clear-Host
 Write-Host ""
-Write-Host "  ╔══════════════════════════════════════════════════════════════╗" -ForegroundColor Magenta
-Write-Host "  ║         RIR STUDIO - Monitoring Agent v$AgentVersion               ║" -ForegroundColor Magenta
-Write-Host "  ║         Auto Hardware Collector & Heartbeat                 ║" -ForegroundColor Magenta
-Write-Host "  ╚══════════════════════════════════════════════════════════════╝" -ForegroundColor Magenta
+Write-Host "  ==============================================================" -ForegroundColor Magenta
+Write-Host "           RIR STUDIO - Monitoring Agent v$AgentVersion               " -ForegroundColor Magenta
+Write-Host "           Auto Hardware Collector & Heartbeat                 " -ForegroundColor Magenta
+Write-Host "  ==============================================================" -ForegroundColor Magenta
 Write-Host ""
 Write-Host "  Server  : $ServerUrl" -ForegroundColor Gray
 Write-Host "  Interval: $IntervalSec detik" -ForegroundColor Gray
@@ -221,7 +221,8 @@ while ($true) {
         Write-AgentLog "Menunggu $IntervalSec detik sebelum heartbeat berikutnya..."
         Start-Sleep -Seconds $IntervalSec
     } catch {
-        Write-AgentLog "Error di main loop: $($_.Exception.Message)" "ERROR"
+        $errorMsg = $_.Exception.Message
+        Write-AgentLog "Error di main loop: $errorMsg" "ERROR"
         Start-Sleep -Seconds 30  # Wait shorter on error before retry
     }
 }
