@@ -237,7 +237,7 @@ export default function AssetShow({ asset, logs, locations, auth, appUrl }: Prop
                             onClick={() => {
                                 const urls: Record<string, string> = { vnc: `vnc://${asset.remote_access_id}`, rustdesk: `rustdesk://${asset.remote_access_id}`, anydesk: `anydesk:${asset.remote_access_id}` };
                                 const url = urls[asset.remote_access_type!];
-                                if (url) window.open(url, '_blank');
+                                if (url) window.location.href = url;
                             }}
                         >
                             <Monitor className="mr-2 h-4 w-4" />
