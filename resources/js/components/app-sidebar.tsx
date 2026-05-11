@@ -22,26 +22,19 @@ export function AppSidebar() {
     const { setOpenMobile } = useSidebar();
     const isAdmin = auth?.user?.role === 'admin';
 
-    const mainNavItems: NavItem[] = [
+    const dashboardItems: NavItem[] = [
         {
             title: 'Dashboard',
             href: dashboard(),
             icon: LayoutGrid,
         },
+    ];
+
+    const inventoryItems: NavItem[] = [
         {
             title: 'Asset Inventory',
             href: '/assets',
             icon: Package,
-        },
-        {
-            title: 'Audit / Opname',
-            href: '/audits',
-            icon: ClipboardCheck,
-        },
-        {
-            title: 'Ticketing',
-            href: '/tickets',
-            icon: TicketCheck,
         },
         {
             title: 'Stok Habis Pakai',
@@ -49,19 +42,22 @@ export function AppSidebar() {
             icon: Boxes,
         },
         {
+            title: 'Audit / Opname',
+            href: '/audits',
+            icon: ClipboardCheck,
+        },
+    ];
+
+    const operationalItems: NavItem[] = [
+        {
+            title: 'Ticketing',
+            href: '/tickets',
+            icon: TicketCheck,
+        },
+        {
             title: 'Servis Pihak 3',
             href: '/services',
             icon: Wrench,
-        },
-        {
-            title: 'Laporan',
-            href: '/reports',
-            icon: FileSpreadsheet,
-        },
-        {
-            title: 'Google Sheets',
-            href: '/google-sheets',
-            icon: Sheet,
         },
         {
             title: 'Network Monitor',
@@ -72,6 +68,19 @@ export function AppSidebar() {
             title: 'Scan QR',
             href: '/scan-qr',
             icon: QrCode,
+        },
+    ];
+
+    const reportItems: NavItem[] = [
+        {
+            title: 'Laporan',
+            href: '/reports',
+            icon: FileSpreadsheet,
+        },
+        {
+            title: 'Google Sheets',
+            href: '/google-sheets',
+            icon: Sheet,
         },
     ];
 
@@ -116,7 +125,10 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={dashboardItems} title="Utama" />
+                <NavMain items={inventoryItems} title="Inventaris & Aset" />
+                <NavMain items={operationalItems} title="Operasional" />
+                <NavMain items={reportItems} title="Data & Laporan" />
                 <NavMain items={masterDataItems} title="Master Data" />
             </SidebarContent>
 
