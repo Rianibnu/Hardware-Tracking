@@ -13,7 +13,7 @@ class NetworkMonitorService
      */
     public function ping(string $ip, int $timeout = 2): float
     {
-        // Validate IP format
+        // Validate IP format — this also acts as sanitization
         if (!filter_var($ip, FILTER_VALIDATE_IP)) {
             return -1;
         }
@@ -21,11 +21,12 @@ class NetworkMonitorService
         $startTime = microtime(true);
 
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            // Windows: ping -n 1 -w <timeout_ms>
-            $cmd = sprintf('ping -n 1 -w %d %s 2>NUL', $timeout * 1000, escapeshellarg($ip));
+            // Windows: ping -n 1 -w <timeout_ms> <ip>
+            // Note: don't use escapeshellarg — it wraps IP in quotes which breaks Windows ping
+            $cmd = sprintf('ping -n 1 -w %d %s', $timeout * 1000, $ip);
         } else {
-            // Linux/Mac: ping -c 1 -W <timeout_sec>
-            $cmd = sprintf('ping -c 1 -W %d %s 2>/dev/null', $timeout, escapeshellarg($ip));
+            // Linux/Mac: ping -c 1 -W <timeout_sec> <ip>
+            $cmd = sprintf('ping -c 1 -W %d %s 2>/dev/null', $timeout, $ip);
         }
 
         exec($cmd, $output, $returnCode);
@@ -35,7 +36,8 @@ class NetworkMonitorService
 
             // Try to extract actual RTT from output
             $outputStr = implode("\n", $output);
-            if (preg_match('/time[=<](\d+\.?\d*)/', $outputStr, $matches)) {
+            // Match both "time=Xms" and "time<1ms" patterns
+            if (preg_match('/time[=<](\d+\.?\d*)\s*ms/i', $outputStr, $matches)) {
                 $latency = (float) $matches[1];
             }
 
